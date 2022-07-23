@@ -7,16 +7,12 @@ public class MultiLevelCache implements IMultiLevelCache{
 	private int levels = 1;
 	private List<Integer> capacity;
 	private Map<Integer, List<Pair>> multiLevelCache;
-//	private final int levelStart;
-//	private final int levelEnd;
 
 
 	public MultiLevelCache(int levels, List<Integer> capacity) {
 		this.multiLevelCache = new HashMap<>(levels);
 		this.levels = levels;
 		this.capacity = capacity;
-//		this.levelStart=0;
-		init();
 	}
 
 	private final void init() {
@@ -26,7 +22,6 @@ public class MultiLevelCache implements IMultiLevelCache{
 		}
 
 	}
-
 
 	@Override
 	public void write(final int key, final int value)
@@ -53,28 +48,28 @@ public class MultiLevelCache implements IMultiLevelCache{
 	@Override
 	public void delete(final int key)
 	{
-		List<Integer> values = new LinkedList<>();
-		int level = key.getLevelId();
-		Set<Integer> desiredLevels = getDesiredLevels(level);
-
-		for (Integer levelId : desiredLevels) {
-			if (multiLevelCache.get(levelId).containsKey(key)) {
-				values.add(multiLevelCache.get(levelId).remove(key));
+		int level=0;
+		for (List<Pair> currentListPairs : multiLevelCache.values()){
+			for(Pair p: currentListPairs){
+				if(key==p.key){
+					int keyToDelete = p.key;
+					multiLevelCache.get(level).remove(p);
+				}
 			}
+			level++;
 		}
-
-		return values;
 	}
 
 	@Override
 	public int read(final int key)
 	{
-		for (Integer levelId : multiLevelCache.keySet()) {
-			if (multiLevelCache.get(levelId).containsKey(key)) {
-				return multiLevelCache.get(levelId).get(key);
+		for (List<Pair> currentListPairs : multiLevelCache.values()){
+			for(Pair p: currentListPairs){
+				if(key==p.key){
+					return p.value;
+				}
 			}
 		}
-
 		return -1;
 	}
 }
