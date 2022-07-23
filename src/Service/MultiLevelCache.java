@@ -2,20 +2,21 @@ package Service;
 
 import java.util.*;
 
-public class MultiLevelCache implements IMultiLevelCache{
+public class MultiLevelCache {
 
-	private int levels = 1;
-	private List<Integer> capacity;
-	private Map<Integer, List<Pair>> multiLevelCache;
+	public int levels;
+	public List<Integer> capacity;
+	public Map<Integer, List<Pair>> multiLevelCache;
 
 
 	public MultiLevelCache(int levels, List<Integer> capacity) {
-		this.multiLevelCache = new HashMap<>(levels);
 		this.levels = levels;
 		this.capacity = capacity;
+		init();
 	}
 
 	private final void init() {
+		this.multiLevelCache = new HashMap<>(levels);
 		//Init all the cache at each level
 		for (int i = 0; i < levels; i++) {
 			multiLevelCache.put(i, new ArrayList<>(capacity.get(i)));
@@ -23,7 +24,6 @@ public class MultiLevelCache implements IMultiLevelCache{
 
 	}
 
-	@Override
 	public void write(final int key, final int value)
 	{
 		writeOnLevel(key,value,0);
@@ -33,6 +33,8 @@ public class MultiLevelCache implements IMultiLevelCache{
 		int currentLevelSize = multiLevelCache.get(level).size();
 		if(currentLevelSize < capacity.get(level)){
 			multiLevelCache.get(level).add(0,new Pair(key,value));
+			System.out.println("Key : "+key+" Value : "+value+" added to level : "+level);
+			return;
 		}
 		else{
 			//remove last used from level 0
@@ -40,12 +42,12 @@ public class MultiLevelCache implements IMultiLevelCache{
 			multiLevelCache.get(level).remove(currentLevelSize-1);
 			//add in level 0
 			multiLevelCache.get(level).add(0,new Pair(key,value));
+			System.out.println("Key : "+key+" Value : "+value+" added to level : "+level);
 			//add in level 1
-			writeOnLevel(deletedPair.key,deletedPair.value,level++);
+			writeOnLevel(deletedPair.key,deletedPair.value,++level);
 		}
 	}
 
-	@Override
 	public void delete(final int key)
 	{
 		int level=0;
@@ -54,18 +56,19 @@ public class MultiLevelCache implements IMultiLevelCache{
 				if(key==p.key){
 					int keyToDelete = p.key;
 					multiLevelCache.get(level).remove(p);
+					System.out.println("Key : "+p.key+" Value : "+p.value+" deleted from level : "+level);
 				}
 			}
 			level++;
 		}
 	}
 
-	@Override
 	public int read(final int key)
 	{
 		for (List<Pair> currentListPairs : multiLevelCache.values()){
 			for(Pair p: currentListPairs){
 				if(key==p.key){
+					System.out.println("Key : "+p.key+" Value : "+p.value+" is read");
 					return p.value;
 				}
 			}
