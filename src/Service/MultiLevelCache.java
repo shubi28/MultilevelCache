@@ -57,21 +57,24 @@ public class MultiLevelCache {
 					int keyToDelete = p.key;
 					multiLevelCache.get(level).remove(p);
 					System.out.println("Key : "+p.key+" Value : "+p.value+" deleted from level : "+level);
+					return;
 				}
 			}
-			level++;
+			++level;
 		}
 	}
 
 	public int read(final int key)
 	{
+		int level=0;
 		for (List<Pair> currentListPairs : multiLevelCache.values()){
 			for(Pair p: currentListPairs){
 				if(key==p.key){
-					System.out.println("Key : "+p.key+" Value : "+p.value+" is read");
+					System.out.println("Key : "+p.key+" Value : "+p.value+" is read on level : "+level);
 					return p.value;
 				}
 			}
+			level++;
 		}
 		return -1;
 	}
